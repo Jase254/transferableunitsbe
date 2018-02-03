@@ -37,6 +37,11 @@ app = Flask(__name__)
 def hello_world():
     return 'Hello World!'
 
+@app.route('/reset')
+def reset_vars():
+    sinceId = None
+    max_id = -1L
+
 
 @app.route('/moretweets/<string:search_term>', methods=['POST', 'GET'])
 def get_more_tweets(search_term):
