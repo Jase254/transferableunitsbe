@@ -39,7 +39,10 @@ def hello_world():
 
 @app.route('/reset')
 def reset_vars():
+    global sinceId
     sinceId = None
+
+    global max_id
     max_id = -1L
 
 
@@ -55,6 +58,8 @@ def get_more_tweets(search_term):
     sentiments = []    # holds sentiment analysis information
     total_score = 0    # cumulative score
     json_file = []
+    global max_id
+    global sinceId
 
     if (max_id <= 0):
         if (not sinceId):
@@ -90,7 +95,9 @@ def get_more_tweets(search_term):
 
         json_file.append({'text': new_tweets[counter].text, 'score': sentiment.score})
 
-    return jsonify(json_file)
+    max_id = new_tweets[-1].id
+
+    return jsonify({"list": json_file})
 
 
 @app.route('/searchlarge/<string:search_term>', methods=['POST', 'GET'])
