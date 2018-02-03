@@ -155,7 +155,7 @@ def get_large_sentiment(search_term):
                 break
 
             for tweet in new_tweets:
-                # Translates some text into Russian
+                # ensures text is in english
                 translation = translate_client.translate(
                     tweet.text,
                     target_language='en')
@@ -172,11 +172,6 @@ def get_large_sentiment(search_term):
                 total_sent = total_sent + sentiment.score
 
 
-
-
-            # for tweet in new_tweets:
-            #     f.write(jsonpickle.encode(tweet._json, unpicklable=False) +
-            #             '\n')
             tweetCount += len(new_tweets)
 
             sleep(10)
