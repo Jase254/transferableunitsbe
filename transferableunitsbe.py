@@ -35,7 +35,7 @@ max_id = -1L
 
 
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
 
 
 
