@@ -4,6 +4,10 @@ from time import sleep
 from google.cloud import language, translate
 from google.cloud.language import enums
 from google.cloud.language import types
+from flask import Flask
+from flask_cors import CORS
+
+
 
 consumer_key = 'db3QhNKdND5TjQZIro9O1lVd6'
 consumer_secret = '8v1GcJYKJOTK3n3SW3Qrxz5oWBCiF1YPHghwXUaJK5bFHCIcec'
@@ -31,6 +35,8 @@ max_id = -1L
 
 
 app = Flask(__name__)
+CORS(app)
+
 
 
 @app.route('/')
