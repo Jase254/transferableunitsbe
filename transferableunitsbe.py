@@ -115,7 +115,7 @@ def get_more_tweets(search_term):
 
     max_id = new_tweets[-1].id
 
-    return jsonify({"list": json_file})
+    return jsonify(json_file)
 
 
 @app.route('/searchlarge/<string:search_term>', methods=['POST', 'GET'])
