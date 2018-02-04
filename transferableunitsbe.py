@@ -4,6 +4,7 @@ from time import sleep
 from google.cloud import language, translate
 from google.cloud.language import enums
 from google.cloud.language import types
+import json
 
 consumer_key = 'db3QhNKdND5TjQZIro9O1lVd6'
 consumer_secret = '8v1GcJYKJOTK3n3SW3Qrxz5oWBCiF1YPHghwXUaJK5bFHCIcec'
@@ -49,6 +50,9 @@ def reset_vars():
 @app.route('/moretweets/<string:search_term>', methods=['POST', 'GET'])
 def get_more_tweets(search_term):
 
+    # converts underscores to spaces
+    search_term.replace("_", " ")
+
     # Instantiates a client
     translate_client = translate.Client()
     client = language.LanguageServiceClient()
@@ -63,37 +67,51 @@ def get_more_tweets(search_term):
 
     if (max_id <= 0):
         if (not sinceId):
-            new_tweets = API.search(q=search_term, count=tweetsPerQry, lang='en')
+            new_tweets = API.search(q=search_term, count=tweetsPerQry, lang='en', tweet_mode='extended')
         else:
             new_tweets = API.search(q=search_term, count=tweetsPerQry,
-                                    since_id=sinceId, lang='en')
+                                    since_id=sinceId, lang='en', tweet_mode='extended')
     else:
         if (not sinceId):
             new_tweets = API.search(q=search_term, count=tweetsPerQry,
-                                    max_id=str(max_id - 1), lang='en')
+                                    max_id=str(max_id - 1), lang='en', tweet_mode='extended')
         else:
             new_tweets = API.search(q=search_term, count=tweetsPerQry,
                                     max_id=str(max_id - 1),
-                                    since_id=sinceId, lang='en')
+                                    since_id=sinceId, lang='en', tweet_mode='extended')
 
     for tweet in new_tweets:
-        # Translates some text into Russian
-        translation = translate_client.translate(
-            tweet.text,
-            target_language='en')
+
+        try:
+            if tweet.retweeted_status:
+
+                # Translates some text into English
+                translation = translate_client.translate(
+                    tweet.retweeted_status.full_text,
+                    target_language='en')
+        except:
+            translation = translate_client.translate(
+                tweet.full_text,
+                target_language='en')
 
         documents.append(types.Document(content=translation['translatedText'], type=enums.Document.Type.PLAIN_TEXT))
 
     for document in documents:
         sentiments.append(client.analyze_sentiment(document=document).document_sentiment)
 
-    sentiment_list = []
 
     for counter, sentiment in enumerate(sentiments):
         tuple = (sentiment.score, sentiment.magnitude)
         total_score = total_score + sentiment.score
 
-        json_file.append({'text': new_tweets[counter].text, 'score': sentiment.score})
+        try:
+            if new_tweets[counter].retweeted_status:
+                #print ('true')
+                json_file.append({'text': new_tweets[counter].retweeted_status.full_text, 'score': sentiment.score, 'name': '@' + new_tweets[counter].user.screen_name})
+        except:
+            #print('false')
+            json_file.append({'text': new_tweets[counter].full_text, 'score': sentiment.score, 'name': '@' + new_tweets[counter].user.screen_name})
+
 
     max_id = new_tweets[-1].id
 
